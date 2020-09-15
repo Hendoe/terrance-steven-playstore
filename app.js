@@ -1,37 +1,56 @@
 const express = require('express');
 const morgan = require('morgan');
-const cors = require('cors');
 
 const app = express();
-app.use(cors());
-app.use(morgan('common')); // let's see what 'common' format looks like
-const books = require('./books-data.js');
+app.use(morgan('common'));
+const apps = require('./playstore.js');
 
-app.get('/books', (req, res) => {
-  const { search = "", sort } = req.query;
+app.get('/apps', (req, res) => {
+  const { search = "", sort, genre } = req.query;
 
   if (sort) {
-    if (!['title', 'rank'].includes(sort)) {
+    if (!['rating', 'app'].includes(sort)) {
       return res
         .status(400)
-        .send('Sort must be one of title or rank');
+        .send('Sort must be one of rating or app');
     }
   }
 
-  let results = books
-    .filter(book =>
-      book
-        .title
+  let results = apps
+    .filter(app =>
+      app
+        .App
         .toLowerCase()
         .includes(search.toLowerCase()));
 
-  if (sort) {
+  if (sort == 'rating') {
+    let score = 'Rating';
     results.sort((a, b) => {
-      return a[sort] > b[sort] ? 1 : a[sort] < b[sort] ? -1 : 0;
+      return a[score] > b[score] ? -1 : a[score] < b[score] ? 1 : 0;
     })
+  // } if (sort == 'app') {
+  //   let name = 'App';
+  //   results.sort((a, b) => {
+  //     let a1 = a.toLowerCase(), b2 = b.toLowerCase();
+  //     return a1[name] > b2[name] ? 1 : a1[name] < b2[name] ? -1 : 0;
+  //   })
+    } if (sort == 'app') {
+      let name = 'App';
+      results.sort((a, b) => {
+        return a[name] > b[name] ? 1 : a[name] < b[name] ? -1 : 0;
+      })
+  } 
+
+  if (genre) {
+    let resultsFinal = results.filter(app => 
+      app
+      .App
+      .includes('Genres'))
+  } else {
+    resultsFinal = results
   }
 
-  res.json(results);
+  res.json(resultsFinal);
 });
 
 app.listen(8000, () => {

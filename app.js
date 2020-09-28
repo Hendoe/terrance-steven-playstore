@@ -14,6 +14,12 @@ app.get('/apps', (req, res) => {
         .status(400)
         .send('Sort must be one of rating or app');
     }
+    if (genre) {
+      if (!['Action', 'Puzzla', 'Strategy', 'Casual', 'Arcade', 'Card'].includes(genre)) {
+        return res
+          .status(400)
+          .send('Genre must be Action, Puzzla, Strategy, Casual, Arcade, Card');
+      }
   }
 
   let results = apps
@@ -28,29 +34,22 @@ app.get('/apps', (req, res) => {
     results.sort((a, b) => {
       return a[score] > b[score] ? -1 : a[score] < b[score] ? 1 : 0;
     })
-  // } if (sort == 'app') {
-  //   let name = 'App';
-  //   results.sort((a, b) => {
-  //     let a1 = a.toLowerCase(), b2 = b.toLowerCase();
-  //     return a1[name] > b2[name] ? 1 : a1[name] < b2[name] ? -1 : 0;
-  //   })
     } if (sort == 'app') {
       let name = 'App';
       results.sort((a, b) => {
-        return a[name] > b[name] ? 1 : a[name] < b[name] ? -1 : 0;
+        return a[name].toLowerCase() > b[name].toLowerCase() ? 1 : a[name].toLowerCase() < b[name].toLowerCase() ? -1 : 0;
       })
   } 
 
   if (genre) {
     let resultsFinal = results.filter(app => 
-      app
-      .App
-      .includes('Genres'))
+      app.Genres.toLowerCase().includes(genre.toLowerCase()))
   } else {
     resultsFinal = results
   }
 
   res.json(resultsFinal);
+  };
 });
 
 app.listen(8000, () => {
